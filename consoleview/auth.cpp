@@ -107,9 +107,33 @@ private:
 		//Todo слепить полученную инфу и захешировать
 		
 	}
-	int CompareArrs() {
-		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
+	int CompareArrs(int array1[], int array2[]) {
+		int counter = 0;
+		if (a.length != b.length || a.length == 0 || b.length == 0) {
+			return -1;
+		}
+		else {
+			for (int i = 0; i < a.length; i++) {
+				counter += a[i] - b[i];
+			}
+			return counter;
+		}
 	}
+	int CompareArrs(char array1[], char array2[]) {
+		int counter = 0;
+		if (a.length != b.length || a.length == 0 || b.length == 0) {
+			return -1;
+		}
+		else {
+			for (int i = 0; i < a.length; i++) {
+				counter += a[i] - b[i];
+			}
+			return counter;
+		}
+	}
+		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
+
+	
 	void GetDataFromXML() {
 		//Todo подключить XML парсер
 		//Todo сделать забор данных с XML парсера
