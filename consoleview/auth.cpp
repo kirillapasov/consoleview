@@ -107,7 +107,7 @@ private:
 		//Todo слепить полученную инфу и захешировать
 		
 	}
-	int CompareArrs(int array1[], int array2[]) {
+	static int CompareArrs(int array1[], int array2[]) {
 		int counter = 0;
 		if (a.length != b.length || a.length == 0 || b.length == 0) {
 			return -1;
@@ -119,7 +119,7 @@ private:
 			return counter;
 		}
 	}
-	int CompareArrs(char array1[], char array2[]) {
+	static int CompareArrs(char array1[], char array2[]) {
 		int counter = 0;
 		if (a.length != b.length || a.length == 0 || b.length == 0) {
 			return -1;
