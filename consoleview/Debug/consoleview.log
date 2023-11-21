@@ -1,0 +1,9 @@
+﻿  auth.cpp
+  consoleview.cpp
+  passwordChecker.cpp
+D:\repos\vsrepos\consoleview\consoleview\passwordChecker.cpp(28,31): warning C4244: =: преобразование "double" в "char", возможна потеря данных
+D:\repos\vsrepos\consoleview\consoleview\passwordChecker.cpp(29,31): warning C4244: =: преобразование "double" в "char", возможна потеря данных
+  passwordGenerator.cpp
+  XMLParser.cpp
+  Создание кода...
+  consoleview.vcxproj -> D:\repos\vsrepos\consoleview\Debug\consoleview.exe

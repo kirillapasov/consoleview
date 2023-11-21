@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<authapp>
+	<config>
+		<id>UCF2355k12</id>
+	</config>
+	<users>
+		<user priv="pedik">
+			<username>admin</username>
+			<password>adminpassword</password>
+		</user>
+		<user>
+			<username>admin</username>
+			<password>adminpassword</password>
+		</user>
+		<user>
+			<username>admin</username>
+			<password>adminpassword</password>
+		</user>
+		<user>
+			<username>admin</username>
+			<password>adminpassword</password>
+		</user>
+		<user>
+			<username>admin</username>
+			<password>adminpassword</password>
+		</user>
+		<user>
+			<username>admin</username>
+			<password>adminpassword</password>
+		</user>	
+	</users>
+</authapp>
