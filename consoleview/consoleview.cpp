@@ -11,11 +11,15 @@ int main()
     auth.MakeAuth();
     auth.CheckUSBDrive();
     */
-    XMLParser asdf("D:/repos/vsrepos/consoleview/consoleview/config.xml");
+    XMLParser asdf("config.xml");
     string* nigga = new string();
     *nigga = "admin";
     std::string sex = asdf.FindPasswordByUserName(nigga);
+    std::string username = "pedik";
+    std::string password = "nigger";
+    std::string group = "fag";
     std::cout << sex;
     delete nigga;
+    asdf.AddNode(1, username.c_str(), password.c_str(), group.c_str());
     return 0;
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <libxml\parser.h>
 #include <libxml\tree.h>
 
@@ -8,6 +9,9 @@
 
 #define CONFIG 0
 #define USERS 1
+
+#define ADD 2
+#define DELETE 3
 
 class XMLParser {
 public:
@@ -19,13 +23,14 @@ public:
 		if (doc == nullptr) {
 			throw "Error opening XML";
 		}
-		rootNode = xmlDocGetRootElement(doc);
+		rootNode = xmlDocGetRootElement(doc)->children;
 		if (rootNode == nullptr) {
 			xmlFreeDoc(doc);
 			throw "NoRootNode";
 		}
 	}
 	~XMLParser() {
+		xmlFreeDoc(doc);
 		xmlCleanupParser();
 	}
 	/**
@@ -56,20 +61,19 @@ public:
 		if (*username == "") throw "NoUserName";
 		std::string UsersPass;
 
-		currentNode = currentNode->children->next;
+		currentNode = currentNode->next;
 
 		UsersPass = ParseXMLUsers(*username, currentNode);
 
-		xmlFreeDoc(doc);
 		return UsersPass;
 	}
 	/**
 	* Удаление нод из XML
 	* 
-	* @param (string) Имя юзера, либо его токен
+	* @param Integer: Type
 	* @returns void
 	*/
-	void DeleteUser() {
+	void DeleteNode(int type, const char* snippet) {
 		
 	}
 	/**
@@ -86,12 +90,12 @@ public:
 		xmlNode* node = NULL;
 		switch (type) {
 		case CONFIG:
-			node = FindNode(rootNode, "config");
+			node = FindNode(rootNode,ADD, "config");
 			if (node == NULL) throw "AddNodeXMLTagNotFound";
 			AddConfigParam(node, param1, param2);
 			break;
 		case USERS:
-			node = FindNode(rootNode, "users");
+			node = FindNode(rootNode,ADD, "users");
 			if (node == NULL) throw "AddNodeXMLTagNotFound";
 			AddUser(node, param1, param2, param3);
 			break;
@@ -99,6 +103,45 @@ public:
 			throw "AddNodeWrongParam";
 			return;
 		}
+	}
+	/**
+	* Удаляет ноду из листа
+	* 
+	* @param Integer: тип удаления (0 - из конфига / 1 - из датабазы)
+	* @param String: Param1 (Cofig: Header; Users: Username)
+	*/
+	void DeleteNode(int type, const char* param1) {
+		xmlNode* node = NULL;
+		switch (type) {
+		case CONFIG:
+			node = FindNode(rootNode, DELETE, "config");
+			if (node == NULL) throw "AddNodeXMLTagNotFound";
+			DeleteNode(node);
+			break;
+		case USERS:
+			node = FindNode(rootNode, DELETE, "users");
+			if (node == NULL) throw "AddNodeXMLTagNotFound";
+			DeleteNode(node);
+			break;
+		default:
+			throw "AddNodeWrongParam";
+			return;
+		}
+	}
+	/**
+	* Метод модификации ноды
+	* 
+	* @param Integer: тип (0 - конфиг / 1 - из датабаза)
+	* @param String: Param1 (Config: Header; Users: Username)
+	* @param String: Param2 (Config: None; Users: Password)
+	* @param String: Param3 (Config: None; Users: Group)
+	 */
+	void ModifyNode(int type, const char* param1, const char* param2 = "", const char* param3 = "") {
+		DeleteNode(type, param1);
+		AddNode(type, param1, param2, param3);
+	}
+	void save() {
+		SaveFile();
 	}
 
 private:
@@ -150,37 +193,48 @@ private:
 		for (currentNode = node->children; currentNode; currentNode = currentNode->next) {
 			if (xmlStrcmp(currentNode->name, BAD_CAST USERPASS) == 0) {
 				int size = strlen((char*)currentNode->children->content);
-				//std::string res((char*)currentNode->children->content, size);
 				*pUserpassword = std::string((char*)currentNode->children->content, size);
-				//*userpassword = currentNode->children->content;
-				//return currentNode->children->content;
 			}
 			if (xmlStrcmp(currentNode->name, BAD_CAST USERGROUP) == 0) {
 				int size = strlen((char*)currentNode->children->content);
-				//std::string res((char*)currentNode->children->content, size);
-				*pUsergroup = std::string((char*)currentNode->children->content, size);
-
-
-				//return currentNode->children->content;
-			}
+				*pUsergroup = std::string((char*)currentNode->children->content, size);			}
+		}
+	}
+//Вспомогательные методы для доббавления, удаления и измененения
+	xmlNode* FindNode(xmlNode* node, int type, const char* param1, const char* param2="", const char* param3="") {
+		switch (type) {
+		case ADD:
+			return AddFind(node, param1);
+		case DELETE:
+			return DelFind(node, param1, param2);
+		default:
+			throw "XMLFinderWrongType";
 		}
 	}
 
-	xmlNode* FindNode(xmlNode* node, const char* name) {
+	xmlNode* AddFind(xmlNode* node, const char* name) {
 		xmlNode* result;
 
-		if (node == NULL);
-		
+		if (node == NULL) return NULL;
+
 		while (node) {
 			if ((node->type == XML_ELEMENT_NODE) && (xmlStrcmp(node->name, BAD_CAST name) == 0)) {
 				return node;
 			}
-			if (result = FindNode(node->children, name)) return result;
+			if (result = AddFind(node->children, name)) return result;
 			node = node->next;
 		}
 		return NULL;
 	}
-	
+	xmlNode* DelFind(xmlNode* node, const char* param1, const char* param2) {
+		xmlNode* result;
+		if (node == NULL) return NULL;
+		while (node) {
+			if ((node->type == XML_ELEMENT_NODE)
+				&& (xmlStrcmp(node->name, BAD_CAST param1) == 0)
+				&& (xmlStrcmp))
+		}
+	}	
 	void AddUser(xmlNode* node, const char* username, const char* password, const char* group) {
 		newNode = xmlNewNode(NULL, BAD_CAST "user");
 		childNewNode = xmlNewNode(NULL, BAD_CAST "username");
@@ -192,9 +246,30 @@ private:
 		childNewNode = xmlNewNode(NULL, BAD_CAST "group");
 		xmlNodeSetContent(childNewNode, BAD_CAST group);
 		xmlAddChild(newNode, childNewNode);
+
+		xmlAddChild(node, newNode);
+		SaveFile();
 	}
 
 	void AddConfigParam(xmlNode* node, const char* header, const char* content) {
-		
+		newNode = xmlNewNode(NULL, BAD_CAST header);
+		xmlNodeSetContent(newNode, BAD_CAST content);
+		xmlAddChild(node, newNode);
+		SaveFile();
+	}
+	void DeleteNode(xmlNode* node) {
+		if (node == NULL) throw "DeleteNodeEmptyValue";
+		xmlUnlinkNode(node);
+		xmlFreeNode(node);
+	}
+
+	void SaveFile() {
+		xmlChar* xmlbuff;
+		int buffersize;
+		std::ofstream outfile;
+		outfile.open("temp.xml");
+		xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
+		outfile << xmlbuff << std::endl;
+		outfile.close();
 	}
 };
