@@ -1,2 +1,2 @@
-D:\repos\vsrepos\consoleview\consoleview\Debug\consoleview.vcxproj.CopyComplete
 C:\repos\consoleview\consoleview\Debug\consoleview.vcxproj.CopyComplete
+D:\repos\vsrepos\consoleview\consoleview\Debug\consoleview.vcxproj.CopyComplete

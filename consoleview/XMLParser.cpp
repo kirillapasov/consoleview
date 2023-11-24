@@ -48,6 +48,14 @@ public:
 
 	}
 	/**
+	* Парсер юзеров
+	* 
+	* 
+	*/
+	void GetUsersList() {
+		
+	}
+	/**
 	*	Поиск пароля юзера по его имени
 	* 
 	*	@param string Имя юзера 
@@ -66,15 +74,6 @@ public:
 		UsersPass = ParseXMLUsers(*username, currentNode);
 
 		return UsersPass;
-	}
-	/**
-	* Удаление нод из XML
-	* 
-	* @param Integer: Type
-	* @returns void
-	*/
-	void DeleteNode(int type, const char* snippet) {
-		
 	}
 	/**
 	* Добавление ноды в хмл
@@ -114,12 +113,12 @@ public:
 		xmlNode* node = NULL;
 		switch (type) {
 		case CONFIG:
-			node = FindNode(rootNode, DELETE, "config");
+			node = FindNode(rootNode, DELETE, "config", param1);
 			if (node == NULL) throw "AddNodeXMLTagNotFound";
 			DeleteNode(node);
 			break;
 		case USERS:
-			node = FindNode(rootNode, DELETE, "users");
+			node = FindNode(rootNode, DELETE, "user", param1);
 			if (node == NULL) throw "AddNodeXMLTagNotFound";
 			DeleteNode(node);
 			break;
@@ -232,8 +231,11 @@ private:
 		while (node) {
 			if ((node->type == XML_ELEMENT_NODE)
 				&& (xmlStrcmp(node->name, BAD_CAST param1) == 0)
-				&& (xmlStrcmp))
+				&& (xmlStrcmp(node->children->next->children->content, BAD_CAST param2) == 0)) return node;
+			if (result = DelFind(node->children, param1, param2)) return result;
+			node = node->next;
 		}
+		return NULL;
 	}	
 	void AddUser(xmlNode* node, const char* username, const char* password, const char* group) {
 		newNode = xmlNewNode(NULL, BAD_CAST "user");
@@ -248,7 +250,6 @@ private:
 		xmlAddChild(newNode, childNewNode);
 
 		xmlAddChild(node, newNode);
-		SaveFile();
 	}
 
 	void AddConfigParam(xmlNode* node, const char* header, const char* content) {

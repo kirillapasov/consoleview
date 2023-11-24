@@ -1,4 +1,4 @@
-﻿  XMLParser.cpp
-  consoleview.cpp
-  Создание кода...
-  consoleview.vcxproj -> C:\repos\consoleview\Debug\consoleview.exe
+﻿  consoleview.cpp
+D:\repos\vsrepos\consoleview\consoleview\XMLParser.cpp(14,1): warning C4005: DELETE: изменение макроопределения
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\winnt.h(8989): message : см. предыдущее определение "DELETE"
+  consoleview.vcxproj -> D:\repos\vsrepos\consoleview\Debug\consoleview.exe

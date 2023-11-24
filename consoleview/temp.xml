@@ -2,7 +2,7 @@
 <authapp>
 	<config>
 		<id>UCF2355k12</id>
-	<pedik>nigger</pedik></config>
+	</config>
 	<users>
 		<user>
 			<username>admin</username>
@@ -27,7 +27,8 @@
 		<user>
 			<username>admin</username>
 			<password>adminpassword</password>
-		</user>	
-	</users>
+		</user>
+		
+	<user><username>churka</username><password>pivo</password><group>daun</group></user></users>
 </authapp>
 

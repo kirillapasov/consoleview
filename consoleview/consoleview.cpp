@@ -20,6 +20,7 @@ int main()
     std::string group = "fag";
     std::cout << sex;
     delete nigga;
-    asdf.AddNode(1, username.c_str(), password.c_str(), group.c_str());
+    asdf.ModifyNode(1, "churka", "pivo", "daun");
+    asdf.save();
     return 0;
 }
