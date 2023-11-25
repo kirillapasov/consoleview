@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\repos\vsrepos\consoleview\Debug\consoleview.exe</FullPath>
+      <FullPath>C:\repos\consoleview\Debug\consoleview.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

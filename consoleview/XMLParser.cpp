@@ -7,6 +7,9 @@
 #define USERPASS "password"
 #define USERGROUP "groupId"
 
+#define USER "users"
+#define CFG "config"
+
 #define CONFIG 0
 #define USERS 1
 
@@ -53,7 +56,11 @@ public:
 	* 
 	*/
 	void GetUsersList() {
-		
+		xmlNode* node = NULL;
+		node = FindNode(rootNode, ADD, USER);
+		userscount = xmlChildElementCount(node);
+		userStruct* toScreenArray = new userStruct[userscount];
+
 	}
 	/**
 	*	Поиск пароля юзера по его имени
@@ -144,15 +151,22 @@ public:
 	}
 
 private:
+	std::string username;
 	std::string userpassword;
 	std::string usergroup;
 	std::string* pUserpassword = &userpassword;
 	std::string* pUsergroup = &usergroup;
+	std::string* pUsername = &username;
 	xmlDocPtr doc = nullptr;
 	xmlNodePtr rootNode = nullptr;
 	xmlNode* newNode = NULL;
 	xmlNode* childNewNode = NULL;
 	std::string xmlFile;
+	int userscount;
+	struct userStruct {
+		std::string username;
+		std::string usergroup;
+	};
 
 	
 	/**
@@ -190,13 +204,18 @@ private:
 		xmlNode* currentNode = NULL;
 
 		for (currentNode = node->children; currentNode; currentNode = currentNode->next) {
+			if (xmlStrcmp(currentNode->name, BAD_CAST "username") == 0) {
+				int size = strlen((char*)currentNode->children->content);
+				*pUsername = std::string((char*)currentNode->children->content, size);
+			}
 			if (xmlStrcmp(currentNode->name, BAD_CAST USERPASS) == 0) {
 				int size = strlen((char*)currentNode->children->content);
 				*pUserpassword = std::string((char*)currentNode->children->content, size);
 			}
 			if (xmlStrcmp(currentNode->name, BAD_CAST USERGROUP) == 0) {
 				int size = strlen((char*)currentNode->children->content);
-				*pUsergroup = std::string((char*)currentNode->children->content, size);			}
+				*pUsergroup = std::string((char*)currentNode->children->content, size);			
+			}
 		}
 	}
 //Вспомогательные методы для доббавления, удаления и измененения
@@ -268,9 +287,23 @@ private:
 		xmlChar* xmlbuff;
 		int buffersize;
 		std::ofstream outfile;
-		outfile.open("temp.xml");
+		outfile.open("config.xml");
 		xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
 		outfile << xmlbuff << std::endl;
 		outfile.close();
+	}
+
+	userStruct* GetUserInfoToStruct(xmlNode* node) {
+		userStruct* user;
+
+		xmlNode* currentNode = node->children;
+		for (currentNode = node; currentNode; currentNode = currentNode->next) {
+			if (currentNode->type == XML_TEXT_NODE) continue;
+			XMLGetUserDataByPtr(currentNode);
+			user->username = *pUsername;
+			user->usergroup = *pUsergroup;
+			return user;
+		}
+		
 	}
 };
