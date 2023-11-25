@@ -5,7 +5,7 @@
 #include <libxml\tree.h>
 
 #define USERPASS "password"
-#define USERGROUP "groupId"
+#define USERGROUP "group"
 
 #define USER "users"
 #define CFG "config"
@@ -51,7 +51,7 @@ public:
 
 	}
 	/**
-	* Парсер юзеров
+	* Передача списка юзернеймов из XML в массив
 	* 
 	* 
 	*/
@@ -60,6 +60,12 @@ public:
 		node = FindNode(rootNode, ADD, USER);
 		userscount = xmlChildElementCount(node);
 		userStruct* toScreenArray = new userStruct[userscount];
+
+		for (int i = 0; i < userscount; i++) {
+			userStruct* nigga = GetUserInfoToStruct(node);
+			toScreenArray[i].username = nigga->username;
+			toScreenArray[i].usergroup = nigga->usergroup;
+		}
 
 	}
 	/**
@@ -164,8 +170,8 @@ private:
 	std::string xmlFile;
 	int userscount;
 	struct userStruct {
-		std::string username;
-		std::string usergroup;
+		std::string* username;
+		std::string* usergroup;
 	};
 
 	
@@ -294,14 +300,17 @@ private:
 	}
 
 	userStruct* GetUserInfoToStruct(xmlNode* node) {
-		userStruct* user;
+		userStruct* user = new userStruct;
+		user->usergroup = (std::string*)"";
+		user->username = (std::string*)"";
 
 		xmlNode* currentNode = node->children;
-		for (currentNode = node; currentNode; currentNode = currentNode->next) {
+		for (currentNode = node->children; currentNode; currentNode = currentNode->next) {
 			if (currentNode->type == XML_TEXT_NODE) continue;
 			XMLGetUserDataByPtr(currentNode);
-			user->username = *pUsername;
-			user->usergroup = *pUsergroup;
+			if (pUsername == nullptr) continue;
+			user->username = pUsername;
+			user->usergroup = pUsergroup;
 			return user;
 		}
 		
