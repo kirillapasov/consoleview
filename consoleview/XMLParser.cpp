@@ -38,7 +38,7 @@ public:
 	}
 	/**
 	* Парсер конфига
-	* Передает программе: <p>
+	* Передает программе:
 	* Id разрешенных девайсов <p>
 	* Тип авторизации <p>
 	* Максимальное количество попыток для входа <p>
@@ -48,14 +48,16 @@ public:
 	* 
 	*/
 	void ParseConfig() {
-
+		//Todo распарсить конфиг
 	}
 	/**
 	* Передача списка юзернеймов из XML в массив
 	* 
 	* 
 	*/
-	void GetUsersList() {
+	void MakeUsersList() {
+
+		//Todo переделать метод
 		xmlNode* node = NULL;
 		node = FindNode(rootNode, ADD, USER);
 		userscount = xmlChildElementCount(node);
@@ -74,7 +76,6 @@ public:
 	*	@param string Имя юзера 
 	*	@returns string Пароль
 	* 
-	*	Возможное расширение: поиск не только пароля, но и токена для авторизации
 	*/
 	std::string FindPasswordByUserName(std::string *username) {
 		xmlNode* currentNode = rootNode;
@@ -89,8 +90,7 @@ public:
 		return UsersPass;
 	}
 	/**
-	* Добавление ноды в хмл
-	* Принимает на вход 5 аргумментов
+	* Добавление ноды в XML
 	*
 	* @param Integer: тип добавления (0 - в конфиг, 1 - в датабазу)
 	* @param String: Param1 (Config: Header; Users: Username)
@@ -175,11 +175,7 @@ private:
 	};
 
 	
-	/**
-	* Эта залупа ищет по списку юзеров, пока не найдет совпадение по юзернейму
-	* И если находит совпадение, то передает поинтер на место в файле для метода
-	* который эти данные достанет
-	*/
+
 	std::string ParseXMLUsers(std::string username, xmlNode *node) {
 
 		xmlNode* currentNode = NULL;
@@ -201,11 +197,7 @@ private:
 		throw "WrongUsername";
 	}
 
-	/**
-	* Эта ебала крч достает данные юзера из XML
-	* 
-	* На входе нода из метода выше
-	*/
+
 	void XMLGetUserDataByPtr(xmlNode* node) {
 		xmlNode* currentNode = NULL;
 
@@ -224,7 +216,7 @@ private:
 			}
 		}
 	}
-//Вспомогательные методы для доббавления, удаления и измененения
+
 	xmlNode* FindNode(xmlNode* node, int type, const char* param1, const char* param2="", const char* param3="") {
 		switch (type) {
 		case ADD:
