@@ -5,6 +5,8 @@
 		<passwordpolicy>7</passwordpolicy>
 		<maxtries>3</maxtries>
 		<timeout>60</timeout>
+		<maxpasswordlength>16</maxpasswordlength>
+		<minpasswordlength>3</minpasswordlength>
 		<id>UCF2355k12</id>
 	</config>
 	<users>
