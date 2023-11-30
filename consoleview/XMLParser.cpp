@@ -168,7 +168,7 @@ private:
 	xmlNode* newNode = NULL;
 	xmlNode* childNewNode = NULL;
 	std::string xmlFile;
-	int userscount;
+	int userscount = 0;
 	struct userStruct {
 		std::string* username;
 		std::string* usergroup;

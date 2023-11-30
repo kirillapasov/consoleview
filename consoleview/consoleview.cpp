@@ -12,6 +12,5 @@ int main()
     auth.CheckUSBDrive();
     */
     XMLParser asdf("config.xml");
-    asdf.GetUsersList();
     return 0;
 }
