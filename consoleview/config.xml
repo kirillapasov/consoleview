@@ -4,29 +4,13 @@
 		<id>UCF2355k12</id>
 	</config>
 	<users>
-		<user priv="pedik">
-			<username>admin</username>
-			<password>adminpassword</password>
-		</user>
-		<user>
-			<username>admin</username>
-			<password>adminpassword</password>
-		</user>
-		<user>
-			<username>admin</username>
-			<password>adminpassword</password>
-		</user>
-		<user>
-			<username>admin</username>
-			<password>adminpassword</password>
-		</user>
-		<user>
-			<username>admin</username>
-			<password>adminpassword</password>
-		</user>
-		<user>
-			<username>admin</username>
-			<password>adminpassword</password>
-		</user>	
-	</users>
+		
+		
+		
+		
+		
+		
+		
+	<user><username>churka</username><password>pivo</password><group>daun</group></user></users>
 </authapp>
+

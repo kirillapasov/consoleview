@@ -114,7 +114,9 @@ private:
 		//Todo подключить XML парсер
 		//Todo сделать забор данных с XML парсера
 	}
-	void ReadXMLConfig() {}
+	void ReadXMLConfig() {
+		
+	}
 	void GetKey() {
 		
 	}

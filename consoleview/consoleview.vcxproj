@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="auth.cpp" />
     <ClCompile Include="consoleview.cpp" />
+    <ClCompile Include="crypt.cpp" />
     <ClCompile Include="passwordChecker.cpp" />
     <ClCompile Include="passwordGenerator.cpp" />
     <ClCompile Include="XMLParser.cpp" />

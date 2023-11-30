@@ -1,0 +1,4 @@
+class Crypt {
+public:
+private:
+};
