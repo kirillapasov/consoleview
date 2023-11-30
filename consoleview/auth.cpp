@@ -109,7 +109,7 @@ private:
 
 		//Вызов системной команды wmic для получения инфы о серийнике материнки и процессора
 		string moboSerialCommand = "wmic baseboard get serialnumber | find /v \"SerialNumber\"";
-		char moboSerialBuf[1024];
+		char moboSerialBuf[1024]{};
 		FILE* moboSerialStream = _popen(moboSerialCommand.c_str(), "r");
 		if (moboSerialStream) {
 			if (fgets(moboSerialBuf, sizeof(moboSerialBuf), moboSerialStream) != nullptr) {
@@ -119,7 +119,7 @@ private:
 		}
 
 		 moboSerialCommand = "wmic cpu get processorId | find /v \"ProcessorId\"";
-		 char moboSerialBuf[1024];
+		 moboSerialBuf[1024];
 		 moboSerialStream = _popen(moboSerialCommand.c_str(), "r");
 		if (moboSerialStream) {
 			if (fgets(moboSerialBuf, sizeof(moboSerialBuf), moboSerialStream) != nullptr) {

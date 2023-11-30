@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <authapp>
 	<config>
+		<auth>0</auth>
+		<passwordpolicy>7</passwordpolicy>
+		<maxtries>3</maxtries>
+		<timeout>60</timeout>
 		<id>UCF2355k12</id>
 	</config>
 	<users>

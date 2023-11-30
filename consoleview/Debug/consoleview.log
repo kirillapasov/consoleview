@@ -2,11 +2,11 @@
   consoleview.cpp
 C:\repos\consoleview\consoleview\XMLParser.cpp(17,1): warning C4005: DELETE: изменение макроопределения
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\winnt.h(8989): message : см. предыдущее определение "DELETE"
+  crypt.cpp
   passwordChecker.cpp
 C:\repos\consoleview\consoleview\passwordChecker.cpp(28,31): warning C4244: =: преобразование "double" в "char", возможна потеря данных
 C:\repos\consoleview\consoleview\passwordChecker.cpp(29,31): warning C4244: =: преобразование "double" в "char", возможна потеря данных
   passwordGenerator.cpp
   XMLParser.cpp
   Создание кода...
-C:\repos\consoleview\consoleview\XMLParser.cpp(317): warning C4715: XMLParser::GetUserInfoToStruct: значение возвращается не при всех путях выполнения
   consoleview.vcxproj -> C:\repos\consoleview\Debug\consoleview.exe
