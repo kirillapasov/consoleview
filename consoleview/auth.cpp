@@ -2,72 +2,93 @@
 #include <windows.h>
 #include <string>
 
+#define PASSWORD_AUTH 420
+#define TOKEN_AUTH 421
+#define TWO_FACTOR_AUTH 422
 using namespace std;
-template <typename T>
 class Auth {
 public:
-	Auth(const T& username, const T& password): username(username), password(password) {
-		
-	}
-	void MakeAuth() {
-		//Todo сделать функцию безопасного сравнения со свитчами
-
-		bool checked;
-
-		checked = (username == "nigger" && password == "faggot") ? true : false;
-		checked ? (cout << "yes \n") : (cout << "no \n");
-
-		GetHWData();
-	}
-	void CheckUSBDrive() {
-		GetUsbData();
-		DWORD res = TRUSTED_USB_SERIAL - serialNumber;
-		cout << res << "\n";
-	}
-	void CheckHardWare() {
-		//Todo написать метод проверки железа
-	}
-	static void ReAuth() {
-		//Todo написать реаутентификацию на основе данных из XML парсера.
-
-		//Todo описать проверку флешки и железа
-
+	Auth() {
 
 	}
-	void CheckBan() {
-		
+	/// <summary>
+	/// Устанавливает максимальное количество попыток для входа
+	/// </summary>
+	/// <param name="value"> Int значение от 1 до MAXINT</param>
+	void SetMaxAuthTries(int value) {
+		if (value > 0 && value <= INT32_MAX)
+			this->maxAuthTries = value;
+		else this->maxAuthTries = DEFAULT_MAX_AUTH_TRIES;
+	}
+	/// <summary>
+	/// Устанавливет значение таймаута при провале аутентификации
+	/// </summary>
+	/// <param name="value">Int значение от 1 до MAXINT</param>
+	void SetTimeoutInSecond(int value) {
+		if (value > 0 && value <= INT32_MAX)
+			this->timeoutInSeconds = value;
+		else this->timeoutInSeconds = DEFAULT_TIMEOUT_IN_SECONDS;
+	}
+	/// <summary>
+	/// Устанавливает тип аутентификации
+	/// 1 - Аутентификация по паролю
+	/// 2 - Аутентификация по токену
+	/// 3 - Двухфакторная аутентификация
+	/// </summary>
+	/// <param name="value">Int значение от 1 до 3</param>
+	void SetAuthType(int value) {
+		if (value > 0 && value < 4)
+			this->authType = value + 419;
+		else this->authType = DEFAULT_AUTH_TYPE;
+	}
+	/// <summary>
+	/// Устанавлиает политику паролей в соответствии с правилами
+	/// </summary>
+	/// <param name="value">Integer от 1 до 127</param>
+	void SetPasswordPolicy(int value) {
+		if (value > 0 && value < 128)
+			this->passwordPolicy = value;
+		else this->passwordPolicy = DEFAULT_PASSWORD_POLICY;
+	}
+	/// <summary>
+	/// Устанавливает максимальную длину пароля
+	/// </summary>
+	/// <param name="value">Integer от минимальной длины пароля до 255</param>
+	void SetMaxPasswordLength(int value) {
+		if (value > minimalPasswordLength && value < 256)
+			this->maxPasswordLength = value;
+		if (value < minimalPasswordLength) this->maxPasswordLength = minimalPasswordLength + 1;
+		if (value >= 256) this->maxPasswordLength = 255;
 	}
 private:
-	T username;
-	T password;
-	T hashedPassword;
+	const int DEFAULT_MAX_AUTH_TRIES = 3;
+	const int DEFAULT_TIMEOUT_IN_SECONDS = 60;
+	const int DEFAULT_AUTH_TYPE = PASSWORD_AUTH;
+	const int DEFAULT_MAX_PASSWORD_LENGTH = 16;
+	const int DEFAULT_PASSWORD_POLICY = 2;
+	const int DEFAULT_MIN_PASSWORD_LENGTH = 3;
 
-	string baseLogin;
-	string baseHashedPassword;
-
+	int maxAuthTries = DEFAULT_MAX_AUTH_TRIES;
+	int timeoutInSeconds = DEFAULT_TIMEOUT_IN_SECONDS;
+	int authType = DEFAULT_AUTH_TYPE;
+	int maxPasswordLength = DEFAULT_MAX_PASSWORD_LENGTH;
+	int passwordPolicy = DEFAULT_PASSWORD_POLICY;
+	int minimalPasswordLength = DEFAULT_MIN_PASSWORD_LENGTH;
+	
 	DWORD serialNumber;
 	DWORD fileSystemFlags;
 	WCHAR volumeName[MAX_PATH] = { 0 };
 	WCHAR fileSystemName[MAX_PATH] = { 0 };
 
-	string cpuSerial, moboserial, diskserial;
+	string* cpuSerial, *moboserial, *diskserial;
 
-	int status;
-	int bit = 0;
-
-
-	//Todo сгенерировать ключи соответствия
-	//Todo сгенерировать фальшивые ключи
-	const int KEYS[3]{6,12,22};
-	const int FKEYS[3]{7,13,23};
-	const DWORD TRUSTED_USB_SERIAL = 1712026262;
-	const DWORD TRUSTED_USB_FILE_SYSTEM_FLAGS = 131590;
-
-
-
-	void MakeHashedPassword(T& username, T& password) {
+	void MakeHashedPassword() {
 		//Todo сделать функцию перевода пароля в хэш
 	}
+	/**
+	* Метод получения данных о USB накопителе
+	* Читает данные с накопителя с меткой "F:"
+	*/
 	void GetUsbData() {
 		(GetVolumeInformation(
 			L"F:\\",
@@ -81,6 +102,9 @@ private:
 		));
 
 	}
+	/*
+	* Метод получения данных о материнской плате и процессоре
+	*/
 	void GetHWData() {
 
 		//Вызов системной команды wmic для получения инфы о серийнике материнки и процессора
@@ -89,38 +113,22 @@ private:
 		FILE* moboSerialStream = _popen(moboSerialCommand.c_str(), "r");
 		if (moboSerialStream) {
 			if (fgets(moboSerialBuf, sizeof(moboSerialBuf), moboSerialStream) != nullptr) {
-				moboserial = moboSerialBuf;
+				*moboserial = *moboSerialBuf;
 			}
 			_pclose(moboSerialStream);
 		}
 
 		 moboSerialCommand = "wmic cpu get processorId | find /v \"ProcessorId\"";
-		 moboSerialBuf[1024];
+		 char moboSerialBuf[1024];
 		 moboSerialStream = _popen(moboSerialCommand.c_str(), "r");
 		if (moboSerialStream) {
 			if (fgets(moboSerialBuf, sizeof(moboSerialBuf), moboSerialStream) != nullptr) {
-				cpuSerial = moboSerialBuf;
+				*cpuSerial = *moboSerialBuf;
 			}
 			_pclose(moboSerialStream);
-		}
-
-		//Todo слепить полученную инфу и захешировать
-		
+		}		
 	}
 	int CompareArrs() {
 		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
 	}
-	void GetDataFromXML() {
-		//Todo подключить XML парсер
-		//Todo сделать забор данных с XML парсера
-	}
-	void ReadXMLConfig() {
-		
-	}
-	void GetKey() {
-		
-	}
-
-	//Todo добавить обработку неуспешных попыток
-	//Todo добавить блокировку при превышении количества ошибок
 };
