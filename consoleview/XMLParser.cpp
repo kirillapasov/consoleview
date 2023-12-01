@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <array>
 #include <vector>
 #include <libxml\parser.h>
 #include <libxml\tree.h>
@@ -8,6 +9,7 @@
 constexpr auto USERNAME = "username";
 constexpr auto USERPASS = "password";
 constexpr auto USERGROUP = "group";
+constexpr auto USERSTATUS = "status";
 
 constexpr auto USERSTR = "users";
 constexpr auto CONFIGSTR = "config";
@@ -16,7 +18,7 @@ constexpr auto CONFIG = 0;
 constexpr auto USERS = 1;
 
 constexpr auto ADD = 2;
-constexpr auto DELETE = 3;
+constexpr auto DELETETYPE = 3;
 
 class XMLParser {
 public:
@@ -59,20 +61,15 @@ public:
 	/// Передает список юзеров для вывода в GUI
 	/// </summary>
 	/// <returns>std::vector размером UsersCount*3, где i - юзернейм, i+1 - группа юзера, i+2 статус юзера</returns>
-	void MakeUsersList() {
+	std::vector<std::string> GetUsersList() {
 
 		//Todo переделать метод
 		xmlNode* node = NULL;
 		node = FindNode(rootNode, ADD, USERSTR);
 		userscount = xmlChildElementCount(node);
-		dataStruct* toScreenArray = new dataStruct[userscount];
-
-		for (int i = 0; i < userscount; i++) {
-			dataStruct* nigga = GetUserInfoToStruct(node);
-			toScreenArray[i].username = nigga->username;
-			toScreenArray[i].usergroup = nigga->usergroup;
-		}
-
+		if (userscount > 33) throw "Too many users. Maximum is 33";
+		std::vector<std::string> res = GetUsersInfo(node);
+		return res;
 	}
 	/// <summary>
 	/// Возвращает количество дочерних узлов в узле конфига или юзеров
@@ -106,17 +103,12 @@ public:
 	*	@returns string Пароль
 	* 
 	*/
-	std::string FindPasswordByUserName(std::string *username) {
-		xmlNode* currentNode = rootNode;
+	std::array<std::string,4> FindUsersDataByUsername(std::string username) {
+		xmlNode* node = FindNode(rootNode, ADD, USERSTR);
 
-		if (*username == "") throw "NoUserName";
-		std::string UsersPass;
-
-		currentNode = currentNode->next;
-
-		UsersPass = ParseXMLUsers(*username, currentNode);
-
-		return UsersPass;
+		if (username == "") throw "NoUserName";
+		std::array<std::string, 4> result = GetUsersPassword(username, node);
+		return result;
 	}
 	/**
 	* Добавление ноды в XML
@@ -155,12 +147,12 @@ public:
 		xmlNode* node = NULL;
 		switch (type) {
 		case CONFIG:
-			node = FindNode(rootNode, DELETE, CONFIGSTR, param1);
+			node = FindNode(rootNode, DELETETYPE, CONFIGSTR, param1);
 			if (node == NULL) throw "AddNodeXMLTagNotFound";
 			DeleteNode(node);
 			break;
 		case USERS:
-			node = FindNode(rootNode, DELETE, USERSTR, param1);
+			node = FindNode(rootNode, DELETETYPE, USERSTR, param1);
 			if (node == NULL) throw "AddNodeXMLTagNotFound";
 			DeleteNode(node);
 			break;
@@ -194,6 +186,8 @@ private:
 	std::string* pUserpassword = &userpassword;
 	std::string* pUsergroup = &usergroup;
 	std::string* pUsername = &username;
+	std::string userstatus;
+	std::string* pUserstatus = &userstatus;
 	xmlDocPtr doc = nullptr;
 	xmlNodePtr rootNode = nullptr;
 	xmlNode* newNode = NULL;
@@ -206,26 +200,39 @@ private:
 	};
 
 	
-
-	std::string ParseXMLUsers(std::string username, xmlNode *node) {
+	std::array<std::string, 4> GetUsersPassword(std::string username, xmlNode *node) {
+		std::array<std::string, 4> res;
+		for (int i = 0; i < 4; i++) {
+			res[i] = "";
+		}
 
 		xmlNode* currentNode = NULL;
-		for (currentNode = node; currentNode; currentNode = currentNode->next) {
-			if (currentNode->type == XML_TEXT_NODE) continue;
-			if (xmlStrcmp(currentNode->name, (const xmlChar*)USERSTR) == 0) {
-				node = currentNode->children;
-				break;
+		xmlNode* temp = NULL;
+
+		for (temp = node->children; temp; temp = temp->next) {
+			for (currentNode = temp->children; currentNode; currentNode = currentNode->next) {
+				if (xmlStrcmp(currentNode->name, BAD_CAST USERNAME) == 0) {
+					if (xmlStrcmp(currentNode->children->content, BAD_CAST username.c_str()) != 0) continue;
+					int size = strlen((char*)currentNode->children->content);
+					res[0] = std::string((char*)currentNode->children->content, size);
+				}
+				if (xmlStrcmp(currentNode->name, BAD_CAST USERPASS) == 0) {
+					int size = strlen((char*)currentNode->children->content);
+					res[1] = std::string((char*)currentNode->children->content, size);
+				}
+				if (xmlStrcmp(currentNode->name, BAD_CAST USERGROUP) == 0) {
+					int size = strlen((char*)currentNode->children->content);
+					res[2] = std::string((char*)currentNode->children->content, size);
+				}
+				if (xmlStrcmp(currentNode->name, BAD_CAST USERSTATUS) == 0) {
+					int size = strlen((char*)currentNode->children->content);
+					res[3] = std::string((char*)currentNode->children->content, size);
+				}
 			}
+			if (res[0] != "") break;
 		}
-		for (currentNode = node; currentNode; currentNode = currentNode->next) {
-			if (currentNode->type == XML_TEXT_NODE) continue;
-			if (xmlStrcmp(currentNode->children->next->children->content, BAD_CAST username.c_str()) == 0) {
-				XMLGetUserDataByPtr(currentNode);
-				//return XMLGetUserDataByPtr(currentNode);
-				return *pUserpassword;
-			}
-		}
-		throw "WrongUsername";
+		if (res[0] == "") throw "WrongUsername";
+		return res;
 	}
 
 
@@ -245,6 +252,10 @@ private:
 				int size = strlen((char*)currentNode->children->content);
 				*pUsergroup = std::string((char*)currentNode->children->content, size);			
 			}
+			if (xmlStrcmp(currentNode->name, BAD_CAST USERSTATUS) == 0) {
+				int size = strlen((char*)currentNode->children->content);
+				*pUserstatus = std::string((char*)currentNode->children->content, size);
+			}
 		}
 	}
 
@@ -252,7 +263,7 @@ private:
 		switch (type) {
 		case ADD:
 			return AddFind(node, param1);
-		case DELETE:
+		case DELETETYPE:
 			return DelFind(node, param1, param2);
 		default:
 			throw "XMLFinderWrongType";
@@ -285,7 +296,7 @@ private:
 		}
 		return NULL;
 	}	
-	void AddUser(xmlNode* node, const char* username, const char* password, const char* group) {
+	void AddUser(xmlNode* node, const char* username, const char* password, const char* group, const char* status = "null") {
 		newNode = xmlNewNode(NULL, BAD_CAST "user");
 		childNewNode = xmlNewNode(NULL, BAD_CAST USERNAME);
 		xmlNodeSetContent(childNewNode, BAD_CAST username);
@@ -295,6 +306,8 @@ private:
 		xmlAddChild(newNode, childNewNode);
 		childNewNode = xmlNewNode(NULL, BAD_CAST USERGROUP);
 		xmlNodeSetContent(childNewNode, BAD_CAST group);
+		childNewNode = xmlNewNode(NULL, BAD_CAST USERSTATUS);
+		xmlNodeSetContent(childNewNode, BAD_CAST status);
 		xmlAddChild(newNode, childNewNode);
 
 		xmlAddChild(node, newNode);
@@ -322,21 +335,25 @@ private:
 		outfile.close();
 	}
 	//Под снос нахуй
-	dataStruct* GetUserInfoToStruct(xmlNode* node) {
-		dataStruct* user = new dataStruct;
-		user->usergroup = (std::string*)"";
-		user->username = (std::string*)"";
+	std::vector<std::string> GetUsersInfo(xmlNode* node) {
+		std::vector<std::string> res;
+		std::string username = "";
+		std::string usergroup = "";
+		std::string userstatus = "";
 
 		xmlNode* currentNode = node->children;
 		for (currentNode = node->children; currentNode; currentNode = currentNode->next) {
 			if (currentNode->type == XML_TEXT_NODE) continue;
 			XMLGetUserDataByPtr(currentNode);
 			if (pUsername == nullptr) continue;
-			user->username = pUsername;
-			user->usergroup = pUsergroup;
-			return user;
+			username = *pUsername;
+			usergroup = *pUsergroup;
+			userstatus = *pUserstatus;
+			res.push_back(username);
+			res.push_back(usergroup);
+			res.push_back(userstatus);
 		}
-		
+		return res;
 	}
 	std::vector<std::string> GetConfigParameters(xmlNode* node) {
 		std::vector<std::string> res;

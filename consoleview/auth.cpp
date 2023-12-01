@@ -120,14 +120,14 @@ private:
 		}
 
 		 moboSerialCommand = "wmic cpu get processorId | find /v \"ProcessorId\"";
-		 moboSerialBuf[1024];
+
 		 moboSerialStream = _popen(moboSerialCommand.c_str(), "r");
 		if (moboSerialStream) {
 			if (fgets(moboSerialBuf, sizeof(moboSerialBuf), moboSerialStream) != nullptr) {
 				*cpuSerial = *moboSerialBuf;
 			}
 			_pclose(moboSerialStream);
-		}		
+		}
 	}
 	int CompareArrs() {
 		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
