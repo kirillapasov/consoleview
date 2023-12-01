@@ -2,9 +2,10 @@
 #include <windows.h>
 #include <string>
 
-#define PASSWORD_AUTH 420
-#define TOKEN_AUTH 421
-#define TWO_FACTOR_AUTH 422
+constexpr auto PASSWORD_AUTH = 420;
+constexpr auto TOKEN_AUTH = 421;
+constexpr auto TWO_FACTOR_AUTH = 422;
+constexpr auto CONFIGLENGTH = 6;
 using namespace std;
 class Auth {
 public:
