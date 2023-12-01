@@ -166,37 +166,40 @@ public:
 	* @param String: Param1 (Config: Header; Users: Username)
 	* @param String: Param2 (Config: Argument; Users: Password)
 	* @param String: Param3 (Config: None; Users: Group)
+	* 
+	* @returns none
 	 */
 	void ModifyNode(int type, const char* param1, const char* param2 = "", const char* param3 = "") {
 		DeleteNode(type, param1);
 		AddNode(type, param1, param2, param3);
 	}
-	//Todo выкинуть нахуй
+	/// <summary>
+	/// Сохраняет все изменения в XML
+	/// </summary>
 	void save() {
 		SaveFile();
 	}
 	
 private:
-	//Todo Refactor
-	std::string username;
-	std::string userpassword;
-	std::string usergroup;
+	//Todo рефактор
+	std::string username = "";
+	std::string userpassword = "";
+	std::string usergroup = "";
+	std::string userstatus = "";
+
 	std::string* pUserpassword = &userpassword;
 	std::string* pUsergroup = &usergroup;
 	std::string* pUsername = &username;
-	std::string userstatus;
 	std::string* pUserstatus = &userstatus;
+
 	xmlDocPtr doc = nullptr;
 	xmlNodePtr rootNode = nullptr;
 	xmlNode* newNode = NULL;
 	xmlNode* childNewNode = NULL;
 	std::string xmlFile;
 	int userscount = 0;
-	struct dataStruct {
-		std::string* username;
-		std::string* usergroup;
-	};
 
+	//Todo поменять все strlen на strnlen_s
 	
 	std::array<std::string, 4> GetUsersPassword(std::string username, xmlNode *node) {
 		std::array<std::string, 4> res;
@@ -233,7 +236,10 @@ private:
 		return res;
 	}
 
-
+	/// <summary>
+	/// Вытягивает все данные из определенного юзера
+	/// </summary>
+	/// <param name="node">указатель на юзера в XML</param>
 	void XMLGetUserDataByPtr(xmlNode* node) {
 		xmlNode* currentNode = NULL;
 
@@ -257,6 +263,16 @@ private:
 		}
 	}
 
+	/// <summary>
+	/// Возвращает указатель на:
+	/// Начальную ноду в конфиге или датабазе
+	/// </summary>
+	/// <param name="node">указатель на корневую ноду XML документа</param>
+	/// <param name="type">Фильтр поска (0 - заголовка категории, 1 - подзаголовка в категории)</param>
+	/// <param name="param1">Имя заголовка, который должен найти метод</param>
+	/// <param name="param2">Имя подзаголовка, который должен найти метод</param>
+	/// <param name="param3">Default: none</param>
+	/// <returns>Указатель на найденную ноду</returns>
 	xmlNode* FindNode(xmlNode* node, int type, const char* param1, const char* param2="", const char* param3="") {
 		switch (type) {
 		case ADD:
@@ -332,7 +348,7 @@ private:
 		outfile << xmlbuff << std::endl;
 		outfile.close();
 	}
-	//Под снос нахуй
+
 	std::vector<std::string> GetUsersInfo(xmlNode* node) {
 		std::vector<std::string> res;
 		std::string username = "";
@@ -357,7 +373,6 @@ private:
 		std::vector<std::string> res;
 		std::string header = "";
 		std::string contents = "";
-		//xmlNode* currentNode = node->children;
 		for (xmlNode* currentNode = node->children; currentNode; currentNode = currentNode->next) {
 			if (currentNode->type == XML_TEXT_NODE) continue;
 			if (strnlen_s((char*)currentNode->name,64) > 0) header = std::string((char*) currentNode->name, strnlen_s((char*)currentNode->name, 64));
