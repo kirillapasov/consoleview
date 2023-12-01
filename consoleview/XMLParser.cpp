@@ -160,7 +160,7 @@ public:
 		}
 	}
 	/**
-	* Метод модификации ноды
+	* Изменение данных в ноде
 	* 
 	* @param Integer: тип (0 - конфиг / 1 - из датабазы)
 	* @param String: Param1 (Config: Header; Users: Username)
