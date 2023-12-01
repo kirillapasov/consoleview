@@ -6,6 +6,7 @@ constexpr auto PASSWORD_AUTH = 420;
 constexpr auto TOKEN_AUTH = 421;
 constexpr auto TWO_FACTOR_AUTH = 422;
 constexpr auto CONFIGLENGTH = 6;
+
 using namespace std;
 class Auth {
 public:
@@ -83,11 +84,15 @@ private:
 
 	string* cpuSerial, *moboserial, *diskserial;
 
-	void MakeHashedPassword() {
-		//Todo сделать функцию перевода пароля в хэш
-	}
+	enum UserStatus {
+		normal = 0,
+		needsToChangePassword = 1,
+		temporarilyBanned = 2,
+		permanentlyBanned = 3,
+	};
+
 	/**
-	* Метод получения данных о USB накопителе
+	* Получение данных о USB накопителе
 	* Читает данные с накопителя с меткой "F:"
 	*/
 	void GetUsbData() {
@@ -104,7 +109,7 @@ private:
 
 	}
 	/*
-	* Метод получения данных о материнской плате и процессоре
+	* Берет данные о материнской плате и процессоре
 	*/
 	void GetHWData() {
 
@@ -132,4 +137,5 @@ private:
 	int CompareArrs() {
 		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
 	}
+	
 };
