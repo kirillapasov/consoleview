@@ -6,7 +6,8 @@ using namespace std;
 
 int main()
 {
-    XMLParser asdf("config.xml");
-    asdf.FindUsersDataByUsername(std::string("churka",6));
+    Auth ax;
+    ax.GetDiskListAndSerialNumbers();
+    std::cout << ax.MakeAuthKey(1, ax.GetDiskListAndSerialNumbers());
     return 0;
 }

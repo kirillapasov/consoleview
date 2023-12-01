@@ -1,6 +1,8 @@
 #include <iostream>
 #include <windows.h>
 #include <string>
+#include <sstream>
+#include <vector>
 
 constexpr auto PASSWORD_AUTH = 420;
 constexpr auto TOKEN_AUTH = 421;
@@ -62,6 +64,56 @@ public:
 		if (value < minimalPasswordLength) this->maxPasswordLength = minimalPasswordLength + 1;
 		if (value >= 256) this->maxPasswordLength = 255;
 	}
+
+	 /// <summary>
+	 /// Достает список всех дисков на устройстве
+	 /// </summary>
+	 /// <returns>std::vector размером количество дисков * 3</returns>
+	 std::vector<std::string> GetDiskListAndSerialNumbers() {
+		DWORD drives = GetLogicalDrives();
+		std::vector<std::string> result;
+
+		for (char i = 'A'; i <= 'Z'; ++i) {
+			if ((drives & 1) != 0) {
+
+				std::string driveLetter = " :\\";
+				driveLetter[0] = i;
+
+				DWORD serialNumber;
+				DWORD fileSystemFlags;
+				std::stringstream ss;
+
+				if (GetVolumeInformationA(driveLetter.c_str(), nullptr, 0, &serialNumber, nullptr, &fileSystemFlags, nullptr, 0)) {
+
+					result.push_back(driveLetter);
+					ss << serialNumber;
+					result.push_back(ss.str());
+					ss.clear();
+					ss << fileSystemFlags;
+					//std::cout << ss.str();
+					result.push_back(ss.str());
+				}
+				else {
+					throw "Cant get drive info";
+				}
+			}
+			drives >>= 1;
+		}
+		return result;
+	 }
+
+	 //Todo допсиать механизм генерации ключа
+	 std::string MakeAuthKey(int driveNumber, std::vector<std::string> origin) {
+
+		 if (!(driveNumber >= 0 && driveNumber << origin.size() / 3)) throw "Auth Key creation failed";
+
+		 std::string keyPart = origin[(driveNumber * 3) + 2] + origin[(driveNumber * 3)+1] + origin[(driveNumber * 3) + 2];
+		 int len = strnlen_s(keyPart.c_str(), 64);
+		 if (len != 32) {
+			 int i = 32 - len;
+			 if (i < 0) return std::string(keyPart.c_str(), 32);
+		 }
+	 }
 private:
 	const int DEFAULT_MAX_AUTH_TRIES = 3;
 	const int DEFAULT_TIMEOUT_IN_SECONDS = 60;
@@ -106,7 +158,16 @@ private:
 			NULL,
 			NULL
 		));
+	}
 
+	
+
+	/// <summary>
+	/// Достает информацию о названии накопителя и его заполненности
+	/// </summary>
+	/// <returns>std::vector</returns>
+	std::vector<std::string> GetDrivesInfomation() {
+		
 	}
 	/*
 	* Берет данные о материнской плате и процессоре
