@@ -93,16 +93,13 @@ public:
 			return xmlChildElementCount(node);
 			break;
 		}
-
 	}
 
-	/**
-	*	Поиск пароля юзера по его имени
-	* 
-	*	@param string Имя юзера 
-	*	@returns string Пароль
-	* 
-	*/
+	/// <summary>
+	/// Вытаскивает все данные о юзере по его юзернейму
+	/// </summary>
+	/// <param name="username">имя пользователя (String)</param>
+	/// <returns>std::array размером 4 с юзернеймом, паролем, группой и статусом</returns>
 	std::array<std::string,4> FindUsersDataByUsername(std::string username) {
 		xmlNode* node = FindNode(rootNode, ADD, USERSTR);
 
@@ -117,6 +114,7 @@ public:
 	* @param String: Param1 (Config: Header; Users: Username)
 	* @param String: Param2 (Config: Argument; Users: Password)
 	* @param String: Param3 (Config: None; Users: Group)
+	* @returns none
 	*
 	*/
 	void AddNode(int type, const char* param1, const char* param2, const char* param3) {
