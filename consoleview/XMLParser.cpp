@@ -38,12 +38,11 @@ public:
 		xmlFreeDoc(doc);
 		xmlCleanupParser();
 	}
-	/**
-	* Парсер конфига
-	* @param none
-	* @returns void
-	* 
-	*/
+	/// <summary>
+	/// Достает параметры из конфига
+	/// </summary>
+	/// <param name="configSize"> Int размер конфига</param>
+	/// <returns>std::vector размером configSize*2, где i - заголовок, i+1 - содержание заголовка </returns>
 	std::vector<std::string> ParseConfig(int configSize){
 
 		int xmlConfigSize = GetChildNodesCount(CONFIG);
@@ -56,11 +55,10 @@ public:
 
 		return result;
 	}
-	/**
-	* Передача списка юзернеймов из XML в массив
-	* 
-	* 
-	*/
+	/// <summary>
+	/// Передает список юзеров для вывода в GUI
+	/// </summary>
+	/// <returns>std::vector размером UsersCount*3, где i - юзернейм, i+1 - группа юзера, i+2 статус юзера</returns>
 	void MakeUsersList() {
 
 		//Todo переделать метод
@@ -183,6 +181,7 @@ public:
 		DeleteNode(type, param1);
 		AddNode(type, param1, param2, param3);
 	}
+	//Todo выкинуть нахуй
 	void save() {
 		SaveFile();
 	}
