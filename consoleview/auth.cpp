@@ -1,6 +1,9 @@
 #include <iostream>
 #include <windows.h>
 #include <string>
+#include <chrono>
+#include <ctime>
+#include <time.h>
 #include <sstream>
 #include <vector>
 
@@ -102,6 +105,10 @@ public:
 		return result;
 	 }
 
+	 void GetTime() {
+		 GetCurrentDate();
+	}
+
 	 //Todo допсиать механизм генерации ключа
 	 std::string MakeAuthKey(int driveNumber, std::vector<std::string> origin) {
 
@@ -113,6 +120,9 @@ public:
 			 int i = 32 - len;
 			 if (i < 0) return std::string(keyPart.c_str(), 32);
 		 }
+	 }
+	 void MakeAuth(std::string username, std::string password) {
+		//Todo захватить 
 	 }
 private:
 	const int DEFAULT_MAX_AUTH_TRIES = 3;
@@ -160,15 +170,6 @@ private:
 		));
 	}
 
-	
-
-	/// <summary>
-	/// Достает информацию о названии накопителя и его заполненности
-	/// </summary>
-	/// <returns>std::vector</returns>
-	std::vector<std::string> GetDrivesInfomation() {
-		
-	}
 	/*
 	* Берет данные о материнской плате и процессоре
 	*/
@@ -195,8 +196,52 @@ private:
 			_pclose(moboSerialStream);
 		}
 	}
-	int CompareArrs() {
-		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
+	int CompareStrings(std::string stringone, std::string stringtwo) {
+
+		std::vector<char> vone;
+		std::vector<char> vtwo;
+
+		int sizeone = strnlen_s(stringone.c_str(), 192);
+		int sizetwo = strnlen_s(stringtwo.c_str(), 192);
+		if (sizeone == 0 || sizetwo == 0) throw "Null Sized string in input";
+		int res=0;
+
+		int diff = sizeone - sizetwo;
+		switch (diff) {
+		case 0:
+			break;
+		default:
+			return -1;
+		}
+
+		for (int i = 0; i < sizeone; i++) {
+			vone.push_back(stringone[i]);
+			vtwo.push_back(stringtwo[i]);
+		}
+		for (int i = 0; i < sizeone; i++) {
+			res += (int)vone[i] - (int)vtwo[i];
+		}
+
+		switch (res) {
+		case 0:
+			return 0;
+		default:
+			return -1;
+		}
 	}
-	
+	std::string GetCurrentDate() {
+		std::time_t currentTime = std::time(nullptr);
+		struct tm timeInfo;
+		char buffer[26];
+
+		// Используем безопасную функцию ctime_s для форматирования времени
+		if (ctime_s(buffer, sizeof(buffer), &currentTime) == 0) {
+			std::cout << "" << buffer << std::endl;
+		}
+		else {
+			std::cerr << "Ошибка при получении текущей даты и времени." << std::endl;
+		}
+		return buffer;
+	}
+
 };

@@ -7,7 +7,6 @@ using namespace std;
 int main()
 {
     Auth ax;
-    ax.GetDiskListAndSerialNumbers();
-    std::cout << ax.MakeAuthKey(1, ax.GetDiskListAndSerialNumbers());
+    ax.GetTime();
     return 0;
 }
