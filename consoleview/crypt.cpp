@@ -1,107 +1,57 @@
 #include <iostream>
-#include <iomanip>
 #include <fstream>
+#include <cryptopp/files.h> 
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/filters.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/files.h> 
 
 using namespace CryptoPP;
 
-class Crypto {
-public:
-    bool EncryptFile(const std::string& inputFile, const std::string& outputFile) {
-        SecByteBlock key(AES::MAX_KEYLENGTH / 2), iv(AES::BLOCKSIZE);
-        AutoSeededRandomPool prng;
-        prng.GenerateBlock(key, key.size());
-        prng.GenerateBlock(iv, iv.size());
+void encryptFile(const std::string& inputFile, const std::string& outputFile, const byte key[], const byte iv[]) {
+    std::ifstream ifs(inputFile, std::ios::binary);
+    std::ofstream ofs(outputFile, std::ios::binary);
 
-        std::cout << "Сгенерированный ключ: ";
-        PrintBlock(key);
+    AES::Encryption aesEncryption(key, AES::DEFAULT_KEYLENGTH);
+    CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv);
 
-        std::cout << "Сгенерированный IV: ";
-        PrintBlock(iv);
+    FileSource fileSource(ifs, true,
+        new StreamTransformationFilter(cbcEncryption,
+            new FileSink(ofs)
+        )
+    );
+}
 
-        std::ifstream inFile(inputFile, std::ios::binary);
-        if (!inFile.is_open()) {
-            std::cerr << "Ошибка открытия входного файла." << std::endl;
-            return false;
-        }
+void decryptFile(const std::string& inputFile, const std::string& outputFile, const byte key[], const byte iv[]) {
+    std::ifstream ifs(inputFile, std::ios::binary);
+    std::ofstream ofs(outputFile, std::ios::binary);
 
-        std::ofstream outFile(outputFile, std::ios::binary);
-        if (!outFile.is_open()) {
-            std::cerr << "Ошибка открытия выходного файла." << std::endl;
-            return false;
-        }
+    AES::Decryption aesDecryption(key, AES::DEFAULT_KEYLENGTH);
+    CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv);
 
-        outFile.write(reinterpret_cast<const char*>(key.data()), key.size());
-        outFile.write(reinterpret_cast<const char*>(iv.data()), iv.size());
+    FileSource fileSource(ifs, true,
+        new StreamTransformationFilter(cbcDecryption,
+            new FileSink(ofs)
+        )
+    );
+}
 
-        if (!EncryptData(inFile, outFile, key, iv)) {
-            std::cerr << "Ошибка шифрования содержимого файла." << std::endl;
-            return false;
-        }
+int main() {
+    // Замените ключ и вектор инициализации на свои значения
+    byte key[AES::DEFAULT_KEYLENGTH] = { 'k', 'e', 'y', '1', '2', '3', '4', '5', '6', '7', '8', '9', '1', '0', '1', '1'};
+    byte iv[AES::BLOCKSIZE] = { 'i', 'v', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4' };
 
-        return true;
-    }
+    // Замените пути к файлам на свои
+    std::string inputFile = "123.txt";
+    std::string encryptedFile = "encrypted.txt";
+    std::string decryptedFile = "decrypted.txt";
 
-    bool DecryptFile(const std::string& inputFile, const std::string& outputFile) {
-        std::ifstream inFile(inputFile, std::ios::binary);
-        if (!inFile.is_open()) {
-            std::cerr << "Ошибка открытия входного файла." << std::endl;
-            return false;
-        }
+    // Шифрование файла
+    encryptFile(inputFile, encryptedFile, key, iv);
+    std::cout << "File encrypted successfully." << std::endl;
 
-        SecByteBlock key(AES::MAX_KEYLENGTH / 2), iv(AES::BLOCKSIZE);
-        inFile.read(reinterpret_cast<char*>(key.data()), key.size());
-        inFile.read(reinterpret_cast<char*>(iv.data()), iv.size());
+    // Расшифрование файла
+    decryptFile(encryptedFile, decryptedFile, key, iv);
+    std::cout << "File decrypted successfully." << std::endl;
 
-        std::ofstream outFile(outputFile, std::ios::binary);
-        if (!outFile.is_open()) {
-            std::cerr << "Ошибка открытия выходного файла." << std::endl;
-            return false;
-        }
-
-        if (!DecryptData(inFile, outFile, key, iv)) {
-            std::cerr << "Ошибка расшифрования содержимого файла." << std::endl;
-            return false;
-        }
-
-        return true;
-    }
-
-private:
-    void PrintBlock(const SecByteBlock& block) {
-        for (size_t i = 0; i < block.size(); ++i) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(block[i]);
-        }
-        std::cout << std::dec << std::endl;
-    }
-
-    bool EncryptData(std::ifstream& inFile, std::ofstream& outFile, const SecByteBlock& key, const SecByteBlock& iv) {
-        try {
-            CBC_Mode<AES>::Encryption encryption(key, key.size(), iv);
-            FileSource fileSource(inFile, true, new StreamTransformationFilter(encryption, new FileSink(outFile)));
-
-            return true;
-        }
-        catch (const Exception& e) {
-            std::cerr << "Исключение Crypto++: " << e.what() << std::endl;
-            return false;
-        }
-    }
-
-    bool DecryptData(std::ifstream& inFile, std::ofstream& outFile, const SecByteBlock& key, const SecByteBlock& iv) {
-        try {
-            CBC_Mode<AES>::Decryption decryption(key, key.size(), iv);
-            FileSource fileSource(inFile, true, new StreamTransformationFilter(decryption, new FileSink(outFile)));
-
-            return true;
-        }
-        catch (const Exception& e) {
-            std::cerr << "Исключение Crypto++: " << e.what() << std::endl;
-            return false;
-        }
-    }
-};
+    return 0;
+}
