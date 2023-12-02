@@ -5,20 +5,27 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/osrng.h>
-#include <cryptopp/files.h> 
+#include <cryptopp/files.h>
 
 using namespace CryptoPP;
 
 class Crypto {
 public:
-    bool EncryptFile(const std::string& inputFile, const std::string& outputFile) {
-        SecByteBlock key(AES::MAX_KEYLENGTH / 2), iv(AES::BLOCKSIZE);
+    bool EncryptFile(const std::string& inputFile, const std::string& outputFile, const std::string& key) {
+        if (key.size() != AES::MAX_KEYLENGTH) {
+            std::cerr << "Ошибка: Неверная длина ключа." << std::endl;
+            return false;
+        }
+
+        SecByteBlock keyBlock(reinterpret_cast<const byte*>(key.data()), key.size());
+        SecByteBlock iv(AES::BLOCKSIZE);
+
+        // Вы можете выбрать генерацию случайного IV здесь, если это необходимо
         AutoSeededRandomPool prng;
-        prng.GenerateBlock(key, key.size());
         prng.GenerateBlock(iv, iv.size());
 
-        std::cout << "Сгенерированный ключ: ";
-        PrintBlock(key);
+        std::cout << "Используемый ключ: ";
+        PrintBlock(keyBlock);
 
         std::cout << "Сгенерированный IV: ";
         PrintBlock(iv);
@@ -35,10 +42,10 @@ public:
             return false;
         }
 
-        outFile.write(reinterpret_cast<const char*>(key.data()), key.size());
+        outFile.write(reinterpret_cast<const char*>(keyBlock.data()), keyBlock.size());
         outFile.write(reinterpret_cast<const char*>(iv.data()), iv.size());
 
-        if (!EncryptData(inFile, outFile, key, iv)) {
+        if (!EncryptData(inFile, outFile, keyBlock, iv)) {
             std::cerr << "Ошибка шифрования содержимого файла." << std::endl;
             return false;
         }
@@ -46,15 +53,20 @@ public:
         return true;
     }
 
-    bool DecryptFile(const std::string& inputFile, const std::string& outputFile) {
+    bool DecryptFile(const std::string& inputFile, const std::string& outputFile, const std::string& key) {
+        if (key.size() != AES::MAX_KEYLENGTH) {
+            std::cerr << "Ошибка: Неверная длина ключа." << std::endl;
+            return false;
+        }
+
         std::ifstream inFile(inputFile, std::ios::binary);
         if (!inFile.is_open()) {
             std::cerr << "Ошибка открытия входного файла." << std::endl;
             return false;
         }
 
-        SecByteBlock key(AES::MAX_KEYLENGTH / 2), iv(AES::BLOCKSIZE);
-        inFile.read(reinterpret_cast<char*>(key.data()), key.size());
+        SecByteBlock keyBlock(reinterpret_cast<const byte*>(key.data()), key.size());
+        SecByteBlock iv(AES::BLOCKSIZE);
         inFile.read(reinterpret_cast<char*>(iv.data()), iv.size());
 
         std::ofstream outFile(outputFile, std::ios::binary);
@@ -63,7 +75,7 @@ public:
             return false;
         }
 
-        if (!DecryptData(inFile, outFile, key, iv)) {
+        if (!DecryptData(inFile, outFile, keyBlock, iv)) {
             std::cerr << "Ошибка расшифрования содержимого файла." << std::endl;
             return false;
         }
