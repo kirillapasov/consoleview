@@ -121,6 +121,9 @@ public:
 			 if (i < 0) return std::string(keyPart.c_str(), 32);
 		 }
 	 }
+	 void MakeAuth(std::string username, std::string password) {
+		//Todo захватить 
+	 }
 private:
 	const int DEFAULT_MAX_AUTH_TRIES = 3;
 	const int DEFAULT_TIMEOUT_IN_SECONDS = 60;
@@ -193,11 +196,42 @@ private:
 			_pclose(moboSerialStream);
 		}
 	}
-	int CompareArrs() {
-		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
+	int CompareStrings(std::string stringone, std::string stringtwo) {
+
+		std::vector<char> vone;
+		std::vector<char> vtwo;
+
+		int sizeone = strnlen_s(stringone.c_str(), 192);
+		int sizetwo = strnlen_s(stringtwo.c_str(), 192);
+		if (sizeone == 0 || sizetwo == 0) throw "Null Sized string in input";
+		int res=0;
+
+		int diff = sizeone - sizetwo;
+		switch (diff) {
+		case 0:
+			break;
+		default:
+			return -1;
+		}
+
+		for (int i = 0; i < sizeone; i++) {
+			vone.push_back(stringone[i]);
+			vtwo.push_back(stringtwo[i]);
+		}
+		for (int i = 0; i < sizeone; i++) {
+			res += (int)vone[i] - (int)vtwo[i];
+		}
+
+		switch (res) {
+		case 0:
+			return 0;
+		default:
+			return -1;
+		}
 	}
 	std::string GetCurrentDate() {
 		std::time_t currentTime = std::time(nullptr);
+		struct tm timeInfo;
 		char buffer[26];
 
 		// Используем безопасную функцию ctime_s для форматирования времени
