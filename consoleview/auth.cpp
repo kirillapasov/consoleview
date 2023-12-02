@@ -1,6 +1,9 @@
 #include <iostream>
 #include <windows.h>
 #include <string>
+#include <chrono>
+#include <ctime>
+#include <time.h>
 #include <sstream>
 #include <vector>
 
@@ -102,6 +105,10 @@ public:
 		return result;
 	 }
 
+	 void GetTime() {
+		 GetCurrentDate();
+	}
+
 	 //Todo допсиать механизм генерации ключа
 	 std::string MakeAuthKey(int driveNumber, std::vector<std::string> origin) {
 
@@ -160,15 +167,6 @@ private:
 		));
 	}
 
-	
-
-	/// <summary>
-	/// Достает информацию о названии накопителя и его заполненности
-	/// </summary>
-	/// <returns>std::vector</returns>
-	std::vector<std::string> GetDrivesInfomation() {
-		
-	}
 	/*
 	* Берет данные о материнской плате и процессоре
 	*/
@@ -198,5 +196,18 @@ private:
 	int CompareArrs() {
 		//Todo написать метод сравнения двумя массивами, возвращающий константный инт
 	}
-	
+	std::string GetCurrentDate() {
+		std::time_t currentTime = std::time(nullptr);
+		char buffer[26];
+
+		// Используем безопасную функцию ctime_s для форматирования времени
+		if (ctime_s(buffer, sizeof(buffer), &currentTime) == 0) {
+			std::cout << "" << buffer << std::endl;
+		}
+		else {
+			std::cerr << "Ошибка при получении текущей даты и времени." << std::endl;
+		}
+		return buffer;
+	}
+
 };
